@@ -3,5 +3,7 @@ SHELL := /bin/bash
 
 .PHONY: test check
 
-test check:
+test:
 	$(MAKE) -C projects/system-toolkit test
+
+check: test
