@@ -74,12 +74,13 @@ test: $(BUILD)/test-snapshot $(PROG) $(BUILD)/system-info-san \
 	valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=all --quiet \
 		--log-file=$(BUILD)/valgrind.log -- $(PROG) >$(BUILD)/valgrind.out
 	bats tests/verifier.bats
-	shellcheck -S info -x -e SC1091 tests/verifier.sh tests/fixtures/*.sh \
-		"tests/fixtures/nom avec espace/conforme.sh"
-	checkbashisms -p tests/verifier.sh tests/fixtures/*.sh \
-		"tests/fixtures/nom avec espace/conforme.sh"
-	shfmt -ln posix -fn -d tests/verifier.sh tests/fixtures/*.sh \
-		"tests/fixtures/nom avec espace/conforme.sh"
+	./tests/verifier-gdb.sh $(PROG)
+	shellcheck -S info -x -e SC1091 tests/verifier.sh tests/verifier-gdb.sh \
+		tests/fixtures/*.sh "tests/fixtures/nom avec espace/conforme.sh"
+	checkbashisms -p tests/verifier.sh tests/verifier-gdb.sh \
+		tests/fixtures/*.sh "tests/fixtures/nom avec espace/conforme.sh"
+	shfmt -ln posix -fn -d tests/verifier.sh tests/verifier-gdb.sh \
+		tests/fixtures/*.sh "tests/fixtures/nom avec espace/conforme.sh"
 	$(BUILD)/system-info-cov >$(BUILD)/cov.out
 	gcov -b -g -o $(BUILD) $(BUILD)/snapshot-cov.o $(BUILD)/main-cov.o
 

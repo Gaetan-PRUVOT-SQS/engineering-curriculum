@@ -21,7 +21,7 @@ GCC est appelé avec `-std=c17 -D_POSIX_C_SOURCE=202405L -Wall -Wextra -Werror`.
 make test
 ```
 
-La suite compile les tests avec ASan et UBSan, compare le binaire à `uname` et `getconf`, relance cette comparaison sous `dash` et `bash --posix`, passe Valgrind, lance bats, shellcheck, checkbashisms et shfmt, puis mesure la couverture de `snapshot.c` et `main.c`.
+La suite compile les tests avec ASan et UBSan, compare le binaire à `uname` et `getconf`, relance cette comparaison sous `dash` et `bash --posix`, passe Valgrind, lance bats, arrête GDB sur `main`, lance shellcheck, checkbashisms et shfmt, puis mesure la couverture de `snapshot.c` et `main.c`.
 
 Pour s'arrêter dans le programme :
 

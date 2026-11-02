@@ -12,6 +12,11 @@ setup() {
 	[[ "$output" == *"usage:"* ]]
 }
 
+@test "gdb usage sans argument" {
+	run -2 "$ROOT/tests/verifier-gdb.sh"
+	[[ "$output" == *"usage:"* ]]
+}
+
 @test "deux arguments" {
 	run -2 "$VERIFIER" /bin/true /bin/true
 	[[ "$output" == *"usage:"* ]]
