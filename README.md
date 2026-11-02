@@ -18,4 +18,12 @@ git clone https://github.com/Gaetan-PRUVOT-SQS/engineering-curriculum.git
 cd engineering-curriculum
 ```
 
-Le détail du poste est dans `00-environment/README.md`.
+Compiler, tester et lancer le programme :
+
+```
+make test
+make -C projects/system-toolkit
+./projects/system-toolkit/build/system-info
+```
+
+`make test` à la racine lance la suite de `projects/system-toolkit`. Il faut `gcc`, `make`, `gdb`, `valgrind`, `bats`, `shellcheck`, `checkbashisms`, `shfmt`, `dash` et `bash`. Le détail du poste est dans `00-environment/README.md`. Le détail du programme est dans `projects/system-toolkit/README.md`.
