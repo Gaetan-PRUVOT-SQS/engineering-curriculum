@@ -84,6 +84,13 @@ test: $(BUILD)/test-systeme $(PROG) $(BUILD)/system-info-san \
 		tests/fixtures/*.sh "tests/fixtures/nom avec espace/conforme.sh"
 	shfmt -ln posix -fn -d tests/verifier.sh tests/verifier-gdb.sh \
 		tests/fixtures/*.sh "tests/fixtures/nom avec espace/conforme.sh"
+	python3 tests/forme.py src/*.c src/*.h tests/*.c tests/*.h
+	if python3 tests/forme.py tests/fixtures/forme-ko.c \
+			>$(BUILD)/forme-ko.out 2>&1; then \
+		printf '%s\n' 'forme: le cas interdit est passe' >&2; \
+		exit 1; \
+	fi
+	grep -q FORBIDDEN_CS $(BUILD)/forme-ko.out
 	$(BUILD)/system-info-cov >$(BUILD)/cov.out
 	gcov -b -g -o $(BUILD) $(LIB_COV) $(BUILD)/main-cov.o
 
