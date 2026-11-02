@@ -17,6 +17,16 @@ COV_CFLAGS := -std=c17 -Wall -Wextra -Werror -Wpedantic -Wformat=2 -Wshadow \
 BUILD := build
 PROG := $(BUILD)/system-info
 
+LIB_NAMES := champ collecte format
+TEST_NAMES := suite champs cas_bornes cas_seuil cas_comptes cas_champ \
+	cas_format cas_erreur lancer
+
+LIB_OBJS := $(addprefix $(BUILD)/,$(addsuffix .o,$(LIB_NAMES)))
+LIB_SAN := $(addprefix $(BUILD)/,$(addsuffix -san.o,$(LIB_NAMES)))
+LIB_COV := $(addprefix $(BUILD)/,$(addsuffix -cov.o,$(LIB_NAMES)))
+TEST_OBJS := $(addprefix $(BUILD)/t-,$(addsuffix .o,$(TEST_NAMES)))
+TEST_COV_OBJS := $(addprefix $(BUILD)/t-,$(addsuffix -cov.o,$(TEST_NAMES)))
+
 .PHONY: all test clean debug
 
 all: $(PROG)
@@ -24,49 +34,42 @@ all: $(PROG)
 $(BUILD):
 	mkdir -p $(BUILD)
 
-$(BUILD)/snapshot.o: src/snapshot.c src/snapshot.h | $(BUILD)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ src/snapshot.c
+$(BUILD)/%.o: src/%.c src/snapshot.h | $(BUILD)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
-$(BUILD)/main.o: src/main.c src/snapshot.h | $(BUILD)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ src/main.c
+$(BUILD)/%-san.o: src/%.c src/snapshot.h | $(BUILD)
+	$(CC) $(CPPFLAGS) $(SAN_CFLAGS) -c -o $@ $<
 
-$(PROG): $(BUILD)/main.o $(BUILD)/snapshot.o
-	$(CC) $(CFLAGS) -o $@ $(BUILD)/main.o $(BUILD)/snapshot.o $(LDFLAGS)
+$(BUILD)/%-cov.o: src/%.c src/snapshot.h | $(BUILD)
+	$(CC) $(CPPFLAGS) $(COV_CFLAGS) -c -o $@ $<
+	rm -f $(patsubst %.o,%.gcda,$@)
 
-$(BUILD)/snapshot-san.o: src/snapshot.c src/snapshot.h | $(BUILD)
-	$(CC) $(CPPFLAGS) $(SAN_CFLAGS) -c -o $@ src/snapshot.c
+$(PROG): $(BUILD)/main.o $(LIB_OBJS)
+	$(CC) $(CFLAGS) -o $@ $(BUILD)/main.o $(LIB_OBJS) $(LDFLAGS)
 
-$(BUILD)/main-san.o: src/main.c src/snapshot.h | $(BUILD)
-	$(CC) $(CPPFLAGS) $(SAN_CFLAGS) -c -o $@ src/main.c
+$(BUILD)/system-info-san: $(BUILD)/main-san.o $(LIB_SAN)
+	$(CC) $(SAN_CFLAGS) -o $@ $(BUILD)/main-san.o $(LIB_SAN) $(LDFLAGS)
 
-$(BUILD)/system-info-san: $(BUILD)/main-san.o $(BUILD)/snapshot-san.o
-	$(CC) $(SAN_CFLAGS) -o $@ $(BUILD)/main-san.o $(BUILD)/snapshot-san.o $(LDFLAGS)
+$(BUILD)/system-info-cov: $(BUILD)/main-cov.o $(LIB_COV)
+	$(CC) $(COV_CFLAGS) -o $@ $(BUILD)/main-cov.o $(LIB_COV) $(LDFLAGS)
 
-$(BUILD)/test-snapshot.o: tests/test_snapshot.c src/snapshot.h | $(BUILD)
-	$(CC) $(CPPFLAGS) $(SAN_CFLAGS) -Isrc -c -o $@ tests/test_snapshot.c
+$(BUILD)/t-%.o: tests/%.c src/snapshot.h tests/suite.h | $(BUILD)
+	$(CC) $(CPPFLAGS) $(SAN_CFLAGS) -Isrc -c -o $@ $<
 
-$(BUILD)/test-snapshot: $(BUILD)/test-snapshot.o $(BUILD)/snapshot-san.o
-	$(CC) $(SAN_CFLAGS) -o $@ $(BUILD)/test-snapshot.o $(BUILD)/snapshot-san.o $(LDFLAGS)
+$(BUILD)/t-%-cov.o: tests/%.c src/snapshot.h tests/suite.h | $(BUILD)
+	$(CC) $(CPPFLAGS) $(COV_CFLAGS) -Isrc -c -o $@ $<
+	rm -f $(patsubst %.o,%.gcda,$@)
 
-$(BUILD)/snapshot-cov.o: src/snapshot.c src/snapshot.h | $(BUILD)
-	$(CC) $(CPPFLAGS) $(COV_CFLAGS) -c -o $@ src/snapshot.c
+$(BUILD)/test-systeme: $(TEST_OBJS) $(LIB_SAN)
+	$(CC) $(SAN_CFLAGS) -o $@ $(TEST_OBJS) $(LIB_SAN) $(LDFLAGS)
 
-$(BUILD)/test-snapshot-cov.o: tests/test_snapshot.c src/snapshot.h | $(BUILD)
-	$(CC) $(CPPFLAGS) $(COV_CFLAGS) -Isrc -c -o $@ tests/test_snapshot.c
+$(BUILD)/test-systeme-cov: $(TEST_COV_OBJS) $(LIB_COV)
+	$(CC) $(COV_CFLAGS) -o $@ $(TEST_COV_OBJS) $(LIB_COV) $(LDFLAGS)
 
-$(BUILD)/test-snapshot-cov: $(BUILD)/test-snapshot-cov.o $(BUILD)/snapshot-cov.o
-	$(CC) $(COV_CFLAGS) -o $@ $(BUILD)/test-snapshot-cov.o $(BUILD)/snapshot-cov.o $(LDFLAGS)
-
-$(BUILD)/main-cov.o: src/main.c src/snapshot.h | $(BUILD)
-	$(CC) $(CPPFLAGS) $(COV_CFLAGS) -c -o $@ src/main.c
-
-$(BUILD)/system-info-cov: $(BUILD)/main-cov.o $(BUILD)/snapshot-cov.o
-	$(CC) $(COV_CFLAGS) -o $@ $(BUILD)/main-cov.o $(BUILD)/snapshot-cov.o $(LDFLAGS)
-
-test: $(BUILD)/test-snapshot $(PROG) $(BUILD)/system-info-san \
-		$(BUILD)/test-snapshot-cov $(BUILD)/system-info-cov
-	$(BUILD)/test-snapshot
-	$(BUILD)/test-snapshot-cov
+test: $(BUILD)/test-systeme $(PROG) $(BUILD)/system-info-san \
+		$(BUILD)/test-systeme-cov $(BUILD)/system-info-cov
+	$(BUILD)/test-systeme
+	$(BUILD)/test-systeme-cov
 	./tests/verifier.sh $(PROG)
 	./tests/verifier.sh $(BUILD)/system-info-san
 	dash ./tests/verifier.sh $(PROG)
@@ -82,7 +85,7 @@ test: $(BUILD)/test-snapshot $(PROG) $(BUILD)/system-info-san \
 	shfmt -ln posix -fn -d tests/verifier.sh tests/verifier-gdb.sh \
 		tests/fixtures/*.sh "tests/fixtures/nom avec espace/conforme.sh"
 	$(BUILD)/system-info-cov >$(BUILD)/cov.out
-	gcov -b -g -o $(BUILD) $(BUILD)/snapshot-cov.o $(BUILD)/main-cov.o
+	gcov -b -g -o $(BUILD) $(LIB_COV) $(BUILD)/main-cov.o
 
 debug:
 	$(MAKE) clean
