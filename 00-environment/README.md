@@ -47,4 +47,4 @@ Le même jour, `system-info` se compile sans avertissement (`-Wall -Wextra -Werr
 
 ## Git
 
-Branche par défaut : `main`. Les commits de ce dépôt portent l'adresse noreply du compte GitHub qui le publie. Cette adresse n'est pas recopiée dans les fichiers. Le remote `origin` pointe vers `https://github.com/Gaetan-PRUVOT-SQS/engineering-curriculum.git`.
+Branche par défaut : `main`. L'identité des commits reste dans l'en-tête git, pas dans les fichiers. Le remote `origin` pointe vers `https://github.com/Gaetan-PRUVOT-SQS/engineering-curriculum.git`.
