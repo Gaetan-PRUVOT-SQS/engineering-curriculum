@@ -1,24 +1,27 @@
 # engineering-curriculum
 
-Parcours d'ingénierie. On part du poste Linux, du compilateur, puis d'un programme C qui affiche la machine.
+English · [Français](README.fr.md)
 
-## Contenu
+Engineering curriculum. We start from the Linux workstation, the compiler,
+then a C program that shows the machine.
 
-- `docs/learning-objectives.md` : ce qu'on doit savoir refaire
-- `docs/evaluation-rules.md` : comment on décide que le palier est tenu
-- `ROADMAP.md` : la suite prévue
-- `PROGRESS.md` : ce qui est déjà fait
-- `00-environment/` : le poste utilisé pour ce dépôt
-- `projects/system-toolkit/` : le programme `system-info`
+## Contents
 
-## Récupérer le dépôt
+- `docs/learning-objectives.md`: what we must be able to do again
+- `docs/evaluation-rules.md`: how we decide a milestone is met
+- `ROADMAP.md`: what comes next
+- `PROGRESS.md`: what is already done
+- `00-environment/`: the workstation used for this repository
+- `projects/system-toolkit/`: the `system-info` program
+
+## Get the repository
 
 ```
 git clone https://github.com/Gaetan-PRUVOT-SQS/engineering-curriculum.git
 cd engineering-curriculum
 ```
 
-Compiler, tester et lancer le programme :
+Build, test and run the program:
 
 ```
 make test
@@ -26,4 +29,8 @@ make -C projects/system-toolkit
 ./projects/system-toolkit/build/system-info
 ```
 
-`make test` à la racine lance la suite de `projects/system-toolkit`. Il faut `gcc`, `make`, `gdb`, `valgrind`, `bats`, `shellcheck`, `checkbashisms`, `shfmt`, `dash` et `bash`. Le détail du poste est dans `00-environment/README.md`. Le détail du programme est dans `projects/system-toolkit/README.md`.
+`make test` at the root runs the `projects/system-toolkit` suite. You need
+`gcc`, `make`, `gdb`, `valgrind`, `bats`, `shellcheck`, `checkbashisms`,
+`shfmt`, `dash` and `bash`. Workstation details are in
+`00-environment/README.md`. Program details are in
+`projects/system-toolkit/README.md`.
